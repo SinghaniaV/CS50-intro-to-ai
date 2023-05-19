@@ -93,7 +93,7 @@ class Sentence():
     """
 
     def __init__(self, cells, count):
-        self.cells = set(cells)
+        self.cells = cells
         self.count = count
 
     def __eq__(self, other):
@@ -124,8 +124,6 @@ class Sentence():
         if cell in self.cells:
             self.cells.remove(cell)
             self.count -= 1
-        else:
-            pass
 
     def mark_safe(self, cell):
         """
@@ -134,8 +132,6 @@ class Sentence():
         """
         if cell in self.cells:
             self.cells.remove(cell)
-        else:
-            pass
 
 
 class MinesweeperAI():
@@ -201,30 +197,21 @@ class MinesweeperAI():
 
         # add new sentence to AI knowledge base based on value of cell and count
         cells = set()
-        count_cpy = copy.deepcopy(count)
+        new_count = count
         close_cells = self.return_close_cells(cell)     # returns neighbour cells
         for cl in close_cells:
             if cl in self.mines:
-                count_cpy -= 1
+                new_count -= 1
             if cl not in self.mines | self.safes:
                 cells.add(cl)                           # only add cells that are of unknown state
 
-        new_sentence = Sentence(cells, count_cpy)           # prepare new sentence
+        new_sentence = Sentence(cells, new_count)           # prepare new sentence
 
         if len(new_sentence.cells) > 0:                 # add that sentence to knowledge only if it is not empty
             self.knowledge.append(new_sentence)
-            # print(f"Adding new sentence: {new_sentence}")
-
-        # # print("Printing knowledge:")
-        # for sent in self.knowledge:
-        #     # print(sent)
-
+         
         # check sentences for new cells that could be marked as safe or as mine
         self.check_knowledge()
-        # print(f"Safe cells: {self.safes - self.moves_made}")
-        # print(f"Mine cells: {self.mines}")
-        # print("------------")
-
         self.extra_inference()
 
     def return_close_cells(self, cell):
@@ -245,14 +232,15 @@ class MinesweeperAI():
         """
         # copies the knowledge to operate on copy
         knowledge_copy = copy.deepcopy(self.knowledge)
-        # iterates through sentences
 
+        # iterates through sentences
         for sentence in knowledge_copy:
             if len(sentence.cells) == 0:
                 try:
                     self.knowledge.remove(sentence)
                 except ValueError:
                     pass
+
             # check for possible mines and safes
             mines = sentence.known_mines()
             safes = sentence.known_safes()
@@ -260,12 +248,10 @@ class MinesweeperAI():
             # update knowledge if mine or safe was found
             if mines:
                 for mine in mines:
-                    # print(f"Marking {mine} as mine")
                     self.mark_mine(mine)
                     self.check_knowledge()
             if safes:
                 for safe in safes:
-                    # print(f"Marking {safe} as safe")
                     self.mark_safe(safe)
                     self.check_knowledge()
 
@@ -285,18 +271,10 @@ class MinesweeperAI():
                     safes = new_sentence.known_safes()
                     if mines:
                         for mine in mines:
-                            # print(f"Used inference to mark mine: {mine}")
-                            # print(f"FinalSen: {new_sentence}")
-                            # print(f"Sent1: {sent1copy}")
-                            # print(f"Sent2: {sent2copy}")
                             self.mark_mine(mine)
 
                     if safes:
                         for safe in safes:
-                            # print(f"Used inference to mark safe: {safe}")
-                            # print(f"FinalSen: {new_sentence}")
-                            # print(f"Sent1: {sent1copy}")
-                            # print(f"Sent2: {sent2copy}")
                             self.mark_safe(safe)
 
     def make_safe_move(self):
@@ -310,7 +288,6 @@ class MinesweeperAI():
         """
         for i in self.safes - self.moves_made:
             # choose first safe cell that wasn't picked before
-            # print(f"Making {i} move")
             return i
         
         return None

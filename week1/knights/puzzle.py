@@ -28,8 +28,6 @@ knowledge1 = And(
     Not(And(BKnight, BKnave)),  # cannot be knight and knave at the same time
     Or(BKnight, BKnave),        # will be Knight or Knave
 
-    # Or(And(AKnight, BKnave), And(AKnave, BKnight)), # A and B can't be the same figure
-
     Implication(AKnight, And(AKnave, BKnave)),
     Implication(AKnave, Not(And(AKnave, BKnave)))
 )
@@ -38,13 +36,11 @@ knowledge1 = And(
 # A says "We are the same kind."
 # B says "We are of different kinds."
 knowledge2 = And(
-    Not(And(AKnight, AKnave)),  # cannot be knight and knave at the same time
-    Or(AKnight, AKnave),        # will be Knight or Knave
+    Not(And(AKnight, AKnave)),  # A cannot be knight and knave at the same time
+    Or(AKnight, AKnave),        # A will be Knight or Knave
 
-    Not(And(BKnight, BKnave)),  # cannot be knight and knave at the same time
-    Or(BKnight, BKnave),        # will be Knight or Knave
-
-    # Or(And(AKnight, BKnave), And(AKnave, BKnight)), # A and B can't be the same figure
+    Not(And(BKnight, BKnave)),  # B cannot be knight and knave at the same time
+    Or(BKnight, BKnave),        # B will be Knight or Knave
 
     Implication(AKnight, And(AKnight, BKnight)),
     Implication(AKnave, Not(And(AKnave, BKnave))),
