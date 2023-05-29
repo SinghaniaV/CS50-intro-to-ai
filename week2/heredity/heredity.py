@@ -148,29 +148,29 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         gene_numb_prop = PROBS['gene'][gene_number]
         trait_prop = PROBS['trait'][gene_number][trait]
 
-        if people[person]['mother'] is None:
+        if people[person]['mother'] or people[person]['father'] is None:
             # no parents, use probability distribution
             probability *= gene_numb_prop * trait_prop
         else:
             # info about parents is available
             mother = people[person]['mother']
             father = people[person]['father']
-            chances = {}
+            mutation_chances = {}
 
-            for ppl in [mother, father]:
-                number = 1 if ppl in one_gene else 2 if ppl in two_genes else 0
+            for parent in [mother, father]:
+                number = 1 if parent in one_gene else 2 if parent in two_genes else 0
                 chance = 0 + PROBS['mutation'] if number == 0 else 0.5 if number == 1 else 1 - PROBS['mutation']
-                chances[ppl] = chance
+                mutation_chances[parent] = chance
 
             if gene_number == 0:
                 # 0, none of parents gave gene
-                probability *= (1 - chances[mother]) * (1 - chances[father])
+                probability *= (1 - mutation_chances[mother]) * (1 - mutation_chances[father])
             elif gene_number == 1:
                 # 1, one of parents gave gene
-                probability *= (1 - chances[mother]) * chances[father] + chances[mother] * (1 - chances[father])
+                probability *= (1 - mutation_chances[mother]) * mutation_chances[father] + mutation_chances[mother] * (1 - mutation_chances[father])
             else:
                 # 2, both of parents gave gene
-                probability *= chances[mother] * chances[father]
+                probability *= mutation_chances[mother] * mutation_chances[father]
 
             probability *= trait_prop
 
