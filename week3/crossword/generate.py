@@ -123,33 +123,33 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        # getting x and y ovelapping cells, unpack cords to variables
-        xoverlap, yoverlap = self.crossword.overlaps[x, y]
+        # getting x and y overlapping cells
+        xoverlap_idx, yoverlap_idx = self.crossword.overlaps[x, y]
 
-        # make variable describing if revision was made
+        # boolean variable storing if revision was made
         revision_made = False
 
-        # making domains copy
+        # making domains copy for iteration
         domains_copy = copy.deepcopy(self.domains)
 
         # if overlap occurs
-        if xoverlap:
+        if xoverlap_idx:
             # iterate through words in x's domain
             for xword in domains_copy[x]:
                 matched_value = False
                 # iterate through words in y's domain
                 for yword in self.domains[y]:
                     # if x's word and y's word have same letter in overlapping position
-                    if xword[xoverlap] == yword[yoverlap]:
+                    if xword[xoverlap_idx] == yword[yoverlap_idx]:
                         matched_value = True
-                        break   # no need to check rest of y's words for that x
+                        break   # no need to check rest of y's words for that xword
                 if matched_value:
-                    continue   # if x and y was matched, proceed with another x
+                    continue   # if x and y was matched, proceed with another xword
                 else:
-                    self.domains[x].remove(xword) # no matching y's word to x, removing word from domain
+                    self.domains[x].remove(xword) # no matching ywords to xword, removing xword from domain
                     revision_made = True
 
-        # return bolean if revision was made
+        # return boolean if revision was made
         return revision_made
 
     def ac3(self, arcs=None):
@@ -162,13 +162,16 @@ class CrosswordCreator():
         return False if one or more domains end up empty.
         """
         if not arcs:
-            # no arcs provided, start with an initial queue of all of the arcs in the problem
+            # no arcs provided, start with an initial queue of all the arcs in the problem
             queue = []
             # populating queue
             for variable1 in self.domains:
                 for variable2 in self.crossword.neighbors(variable1):
                     if self.crossword.overlaps[variable1, variable2] is not None:
                         queue.append((variable1, variable2))
+        else:
+            # arcs provided
+            queue = arcs
 
         while len(queue) > 0:
             x, y = queue.pop(0)
@@ -236,17 +239,17 @@ class CrosswordCreator():
         for word in self.domains[var]:
             eliminated = 0
             for neighbour in neighbours:
-                # don't count if neighbor has already assigned value
+                # don't count if neighbor has already been assigned a value
                 if neighbour in assignment:
                     continue
                 else:
                     # calculate overlap between two variables
-                    xoverlap, yoverlap = self.crossword.overlaps[var, neighbour]
+                    xoverlap_idx, yoverlap_idx = self.crossword.overlaps[var, neighbour]
                     for neighbour_word in self.domains[neighbour]:
-                        # iterate through neighbour's words, check for eliminate ones
-                        if word[xoverlap] != neighbour_word[yoverlap]:
+                        # iterate through neighbour's words, check for eliminated ones
+                        if word[xoverlap_idx] != neighbour_word[yoverlap_idx]:
                             eliminated += 1
-            # add eliminated neighbour's words to temporary dict
+            # add no of eliminated neighbour's words for a var's word to temporary dict
             word_dict[word] = eliminated
 
         # sort variables dictionary by number of eliminated neighbour values
@@ -299,7 +302,7 @@ class CrosswordCreator():
             # making assignment copy, with updated variable value
             assignment_copy = assignment.copy()
             assignment_copy[variable] = value
-            # checking for consistency, getting result of that new assignment backtrack
+            # checking for consistency, getting result of that new assignment if didn't work then backtrack
             if self.consistent(assignment_copy):
                 result = self.backtrack(assignment_copy)
                 if result is not None:
